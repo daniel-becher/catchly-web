@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klára — AI asistentka pro Seven dent | Catchly</title>
+<meta name="description" content="Ukázka AI asistentky Kláry připravená pro zubní kliniku Seven dent Ostrava.">
+<meta name="robots" content="noindex">
+<style>
+  :root{
+    --ink:#111827;
+    --muted:#6b7280;
+    --accent:#2338c9;
+    --accent-dark:#1e2a78;
+    --mint:#7fe0c3;
+    --bg:#f8fafc;
+    --card:#ffffff;
+    --border:#e5e7eb;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:960px;margin:0 auto;padding:24px 20px 64px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:8px 0 32px}
+  .logo{font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--ink);text-decoration:none}
+  .logo span{color:#14b8a6}
+  .phone{font-size:15px;color:var(--muted);text-decoration:none}
+  .phone strong{color:var(--ink)}
+  .badge{display:inline-block;background:var(--accent-dark);color:#fff;font-size:13px;font-weight:600;border-radius:999px;padding:5px 14px;margin-bottom:14px}
+  h1{font-size:clamp(26px,4vw,38px);letter-spacing:-0.03em;line-height:1.2;margin-bottom:12px}
+  h1 em{color:var(--accent);font-style:normal}
+  .sub{font-size:17px;color:var(--muted);max-width:680px;margin-bottom:8px}
+  .hint{font-size:15px;color:var(--muted);margin:20px 0 12px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+  .chip{font-size:14px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:6px 14px;color:var(--ink)}
+  .demo-card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 30px rgba(17,24,39,.06);overflow:hidden}
+  .demo-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);background:#fbfcfd}
+  .dot{width:10px;height:10px;border-radius:50%;background:#e5e7eb}
+  .dot:first-child{background:#fca5a5}.dot:nth-child(2){background:#fcd34d}.dot:nth-child(3){background:#86efac}
+  .demo-label{margin-left:8px;font-size:13px;color:var(--muted)}
+  iframe{display:block;width:100%;height:600px;border:0}
+  .note{font-size:13px;color:var(--muted);text-align:center;margin-top:10px}
+  .cta{margin-top:48px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center}
+  .cta h2{font-size:24px;letter-spacing:-0.02em;margin-bottom:8px}
+  .cta p{color:var(--muted);max-width:560px;margin:0 auto 20px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;font-size:16px;padding:14px 28px;border-radius:10px;transition:background .15s}
+  .btn:hover{background:var(--accent-dark)}
+  .cta .alt{display:block;margin-top:14px;font-size:14px;color:var(--muted)}
+  .cta .alt a{color:var(--accent);text-decoration:none;font-weight:600}
+  .copy-btn{margin-left:6px;font-size:13px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;color:var(--ink)}
+  .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+  footer{margin-top:48px;text-align:center;font-size:14px;color:var(--muted)}
+  footer a{color:var(--muted)}
+  @media (max-width:600px){iframe{height:520px}.cta{padding:24px 16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="logo" href="https://catchlyai.com">Catchly<span>.</span></a>
+    <a class="phone" href="tel:+420735707776">📞 <strong>735 707 776</strong></a>
+  </header>
+
+  <span class="badge">Připraveno pro Seven dent</span>
+  <h1>Klára — AI asistentka <em>pro vaši kliniku</em></h1>
+  <p class="sub">Naučená přímo z webu sevendentostrava.cz — zná váš ceník, tým, ordinační dobu i rezervační systém. Odpovídá pacientům 24/7, a když se k vám nemohou dovolat, převezme jejich kontakt, ať můžete volat zpět.</p>
+
+  <p class="hint">Zeptejte se jí, jak by se ptal váš pacient:</p>
+  <div class="chips">
+    <span class="chip">💰 Kolik stojí dentální hygiena?</span>
+    <span class="chip">📅 Jak se objednám?</span>
+    <span class="chip">📵 Nemůžu se vám dovolat</span>
+    <span class="chip">🦷 Kdo u vás ošetřuje?</span>
+  </div>
+
+  <div class="demo-card">
+    <div class="demo-bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="demo-label">Klára — asistentka Seven dent (ukázková verze)</span>
+    </div>
+    <iframe src="https://www.chat-data.com/chatbot-iframe/6a4e6045b67da8ebc3eb30ff" title="Klára — AI asistentka Seven dent" loading="lazy"></iframe>
+  </div>
+  <p class="note">Vše je ukázka a dá se přizpůsobit — jméno, vzhled, tón odpovědí i to, co smí a nesmí říkat. Před spuštěním společně projdeme a potvrdíme všechny informace.</p>
+
+  <div class="cta">
+    <h2>Líbí se vám, jak Klára odpovídá?</h2>
+    <p>Na váš web ji nasadíme jako chat bublinu v rohu stránky — bez zásahu do webu, stačí jeden řádek kódu. Spuštění do pár dnů od odsouhlasení.</p>
+    <a class="btn" href="tel:+420735707776">Zavolejte mi: 735 707 776</a>
+    <span class="alt">Nebo napište na <a href="mailto:daniel@catchlyai.com">daniel@catchlyai.com</a> <button type="button" class="copy-btn" onclick="copyMail(this)">📋 Zkopírovat adresu</button></span>
+  </div>
+
+  <footer>
+    <a href="https://catchlyai.com">catchlyai.com</a> — AI asistenti pro kliniky · Daniel Becher
+  </footer>
+
+</div>
+<script>
+// drz stranku nahore — chat si po nacteni bere focus a odscrolluje
+if('scrollRestoration' in history){history.scrollRestoration='manual';}
+window.addEventListener('load',function(){
+  window.scrollTo(0,0);
+  var t=0;var iv=setInterval(function(){window.scrollTo(0,0);t+=200;if(t>=1600)clearInterval(iv);},200);
+});
+function copyMail(btn){
+  var addr='daniel@catchlyai.com';
+  function done(){var t=btn.textContent;btn.textContent='✅ Zkopírováno';setTimeout(function(){btn.textContent=t;},2000);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(addr).then(done);
+  }else{
+    var ta=document.createElement('textarea');ta.value=addr;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');done();}catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+</script>
+</body>
+</html>
