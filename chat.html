@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catchly — AI asistent pro kliniky | Zachytíme pacienty 24/7</title>
+<meta name="description" content="AI asistent na web vaší kliniky. Odpovídá pacientům 24/7 česky i anglicky, zachytí jméno a telefon zájemce a pošle vám ho e-mailem. GDPR v pořádku.">
+<style>
+  :root{
+    --teal:#14b8a6; --teal-dark:#0d9488; --navy:#0f2830; --ink:#1a2e35;
+    --bg:#ffffff; --soft:#f3f8f7; --muted:#5b7078; --line:#e3edeb;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+  /* header */
+  header{position:sticky;top:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:10}
+  /* tři sloupce, aby přepínač seděl přesně uprostřed nezávisle na šířce loga a tlačítka */
+  .nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 0;gap:12px}
+  .logo{justify-self:start;display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.35rem;color:var(--navy);text-decoration:none}
+  .nav>.btn{justify-self:end}
+  .logo .ai{color:var(--teal)}
+  /* přepínač telefon / chat */
+  .tabs{justify-self:center;display:flex;gap:4px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:4px}
+  .tabs a{display:inline-block;min-width:104px;text-align:center;padding:8px 16px;border-radius:9px;font-weight:700;font-size:.95rem;color:var(--muted);text-decoration:none;transition:.2s;white-space:nowrap}
+  .tabs a:hover{color:var(--teal-dark)}
+  .tabs a[aria-current="page"]{background:#fff;color:var(--teal-dark);box-shadow:0 1px 3px rgba(15,40,48,.10)}
+  .btn{display:inline-block;background:var(--teal);color:#fff;padding:12px 22px;border-radius:10px;font-weight:700;text-decoration:none;transition:.2s}
+  .btn:hover{background:var(--teal-dark)}
+  .btn.big{padding:16px 30px;font-size:1.05rem}
+  .btn.ghost{background:transparent;color:var(--navy);border:2px solid var(--line)}
+  .copy-btn{margin-left:6px;font-size:.8rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 10px;cursor:pointer;color:var(--ink);font-family:inherit}
+  .copy-btn:hover{border-color:var(--teal);color:var(--teal-dark)}
+  /* hero */
+  .hero{padding:72px 0 56px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+  .hero h1{font-size:2.5rem;line-height:1.2;color:var(--navy);margin-bottom:18px}
+  .hero h1 em{color:var(--teal);font-style:normal}
+  .hero p.sub{font-size:1.15rem;color:var(--muted);margin-bottom:28px}
+  .hero .cta-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .hero .note{font-size:.85rem;color:var(--muted);margin-top:14px}
+  /* chat mock */
+  .chat{background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 20px 50px rgba(15,40,48,.10)}
+  .chat .head{display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:14px}
+  .chat .head .dot{width:9px;height:9px;border-radius:50%;background:#22c55e}
+  .chat .head span{font-weight:700;color:var(--navy);font-size:.95rem}
+  .msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:.92rem;margin-bottom:10px}
+  .msg.bot{background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+  .msg.user{background:var(--teal);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+  .msg .time{display:block;font-size:.7rem;opacity:.6;margin-top:4px}
+  /* sections */
+  section{padding:64px 0}
+  section.alt{background:var(--soft)}
+  h2{font-size:1.8rem;color:var(--navy);margin-bottom:12px}
+  .lead{color:var(--muted);max-width:640px;margin-bottom:40px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px}
+  .card .num{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;background:var(--teal);color:#fff;font-weight:800;margin-bottom:14px}
+  .card h3{color:var(--navy);font-size:1.08rem;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:.95rem}
+  /* compliance strip */
+  .strip{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;padding:26px;background:var(--navy);border-radius:16px;color:#cfe8e4;font-size:.92rem}
+  .strip b{color:#fff}
+  /* about */
+  .about{display:flex;gap:28px;align-items:center;max-width:760px}
+  .about .avatar{flex:0 0 84px;width:84px;height:84px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.6rem}
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-size:.9rem}
+  .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+  footer a{color:var(--teal-dark);text-decoration:none}
+  @media(max-width:860px){
+    .nav{grid-template-columns:1fr auto;row-gap:12px}
+    .tabs{grid-row:2;grid-column:1/-1;width:100%}
+    .tabs a{flex:1;min-width:0}
+    .nav .btn{padding:10px 16px;font-size:.9rem}
+    .hero{grid-template-columns:1fr;padding-top:44px}
+    .grid3{grid-template-columns:1fr}
+    .hero h1{font-size:1.9rem}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#">
+      <!-- logo 1b: bublina s úsměvem -->
+      <svg width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 8C25 8 6 24 6 44c0 12 7 22 17 29l-4 15c-1 4 3 7 6 5l17-10c3 .5 5 .7 8 .7 25 0 44-16 44-36S75 8 50 8z" fill="#14b8a6"/>
+        <path d="M32 42c4 8 10 12 18 12s14-4 18-12" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+      </svg>
+      <span>catchly<span class="ai">ai</span></span>
+    </a>
+
+    <nav class="tabs" aria-label="Výběr asistentky">
+      <a href="index.html">📞 Telefon</a>
+      <a href="chat.html" aria-current="page">💬 Chat</a>
+    </nav>
+
+    <a class="btn" href="mailto:daniel@catchlyai.com?subject=Chci ukázku asistenta&body=Dobrý den, máme zájem o ukázku asistenta. Web naší kliniky: ">Ukázka zdarma</a>
+  </div>
+</header>
+
+<div class="wrap hero">
+  <div>
+    <h1>Zachytíme pacienty, kteří se ptají, <em>když vaše ordinace spí.</em></h1>
+    <p class="sub">AI asistent na webu vaší kliniky odpovídá 24/7 — na ceny, výkony i termíny. Česky, anglicky i ukrajinsky. Zájemce o ošetření zachytí a pošle vám jeho kontakt rovnou na e-mail.</p>
+    <div class="cta-row">
+      <a class="btn big" href="mailto:daniel@catchlyai.com?subject=Chci ukázku na svém webu&body=Dobrý den, máme zájem o ukázku asistenta. Web naší kliniky: ">Chci ukázku na svém webu — zdarma</a>
+      <a class="btn ghost" href="/demo">Vyzkoušet živou ukázku</a>
+    </div>
+    <p class="note">Ukázku postavím přímo na obsahu vašeho webu do 48 hodin. Nezávazně.<br>
+    Nebo napište na <a href="mailto:daniel@catchlyai.com" style="color:var(--teal-dark);font-weight:700;text-decoration:none">daniel@catchlyai.com</a> <button type="button" class="copy-btn" onclick="copyMail(this)">📋 Zkopírovat adresu</button></p>
+  </div>
+
+  <div class="chat">
+    <div class="head"><span class="dot"></span><span>Asistentka kliniky · online</span></div>
+    <div class="msg user">Dobrý den, kolik stojí bělení zubů? <span class="time">so 21:47</span></div>
+    <div class="msg bot">Dobrý den! Domácí bělení u nás stojí 5 990–6 490 Kč, kombinace s ordinačním 9 890 Kč. Chcete, abych vám domluvila konzultaci?<span class="time">so 21:47</span></div>
+    <div class="msg user">Ano, prosím.</div>
+    <div class="msg bot">Ráda! Napište mi prosím jméno a telefon — klinika se vám ozve hned zítra ráno. 😊</div>
+  </div>
+</div>
+
+<section class="alt" id="proc">
+  <div class="wrap">
+    <h2>Kolik pacientů vám takhle uteklo tenhle měsíc?</h2>
+    <p class="lead">Většina lidí hledá zubaře či kliniku večer a o víkendu — přesně tehdy, kdy nikdo nezvedá telefon a na e-mail se čeká do pondělí. Zájemce, který nedostane odpověď, jde ke konkurenci.</p>
+    <div class="grid3">
+      <div class="card"><div class="num">1</div><h3>Večer a o víkendu</h3><p>Asistent odpovídá okamžitě, i v sobotu ve 22:00. Na dotaz reaguje do vteřiny — a zájem promění v kontakt.</p></div>
+      <div class="card"><div class="num">2</div><h3>Recepce si oddechne</h3><p>Ceny, pojišťovny, ordinační doba, parkování — dotazy, které dnes zvedá recepce, odbaví asistent. Recepce se věnuje pacientům v čekárně.</p></div>
+      <div class="card"><div class="num">3</div><h3>Vše pod kontrolou</h3><p>Vidíte každou konverzaci. Každý měsíc dostanete report: kolik lidí se ptalo, na co, a kolik kontaktů asistent zachytil.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="jak">
+  <div class="wrap">
+    <h2>Jak to funguje</h2>
+    <p class="lead">Žádné IT projekty, žádná práce pro váš tým. Vy jen zkontrolujete odpovědi.</p>
+    <div class="grid3">
+      <div class="card"><div class="num">1</div><h3>Postavíme z vašeho webu</h3><p>Asistent se naučí vaše služby, ceník i ordinační dobu přímo z vašich stránek. Spuštění do 48 hodin od odsouhlasení.</p></div>
+      <div class="card"><div class="num">2</div><h3>Odpovídá a zachytává</h3><p>Návštěvníkům odpovídá ve více jazycích, u zájmu o termín si vyžádá jméno a telefon — a kontakt vám pošle na e-mail.</p></div>
+      <div class="card"><div class="num">3</div><h3>Ladíme a reportujeme</h3><p>Průběžně odpovědi dolaďujeme, hlídáme kvalitu a měsíčně posíláme přehled zachycených pacientů. Zrušit můžete kdykoli.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="strip">
+      <span><b>GDPR v pořádku</b> — zpracovatelská smlouva (čl. 28)</span>
+      <span><b>Data v EU/Švýcarsku</b></span>
+      <span><b>Žádné lékařské rady</b> — zdravotní dotazy směřuje na vás</span>
+      <span><b>Bez závazků</b> — měsíc po měsíci</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap about">
+    <div class="avatar">DB</div>
+    <div>
+      <h2 style="font-size:1.3rem">Daniel Becher</h2>
+      <p style="color:var(--muted)">Stavím AI asistenty pro zubní a estetické kliniky. Každého asistenta ladím ručně na míru konkrétní klinice — a než cokoli spustíme, otestujeme ho spolu. Pro první kliniky nabízím pilotní podmínky výměnou za zpětnou vazbu.</p>
+    </div>
+  </div>
+</section>
+
+<section class="alt" style="text-align:center">
+  <div class="wrap">
+    <h2>Uvidíte to na vlastním webu — zdarma</h2>
+    <p class="lead" style="margin:0 auto 28px">Pošlete mi adresu svých stránek a do 48 hodin vám vrátím odkaz na asistenta postaveného přímo pro vaši kliniku. Nezávazně, bez instalace.</p>
+    <a class="btn big" href="mailto:daniel@catchlyai.com?subject=Chci ukázku na svém webu&body=Dobrý den, máme zájem o ukázku. Web naší kliniky: ">Poslat web a získat ukázku</a>
+    <p class="note" style="margin-top:14px">Nebo napište na <a href="mailto:daniel@catchlyai.com" style="color:var(--teal-dark);font-weight:700;text-decoration:none">daniel@catchlyai.com</a> <button type="button" class="copy-btn" onclick="copyMail(this)">📋 Zkopírovat adresu</button></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <span>© 2026 Catchly · Daniel Becher</span>
+    <span><a href="mailto:daniel@catchlyai.com">daniel@catchlyai.com</a> · <a href="https://instagram.com/catchlyai" target="_blank">Instagram</a></span>
+  </div>
+</footer>
+
+<script>
+function copyMail(btn){
+  var addr='daniel@catchlyai.com';
+  function done(){var t=btn.textContent;btn.textContent='✅ Zkopírováno';setTimeout(function(){btn.textContent=t;},2000);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(addr).then(done);
+  }else{
+    var ta=document.createElement('textarea');ta.value=addr;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');done();}catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+</script>
+</body>
+</html>
