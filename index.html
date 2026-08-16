@@ -31,9 +31,15 @@
   .btn.big{padding:16px 30px;font-size:1.05rem}
   .btn.ghost{background:transparent;color:var(--navy);border:2px solid var(--line)}
   .btn.ghost:hover{background:var(--soft);border-color:var(--accent);color:var(--accent-dark)}
-  .btn.phone{display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;line-height:1.25}
-  .btn.phone .lbl{font-size:.9rem;font-weight:600;opacity:.92}
-  .btn.phone .num{font-size:1.45rem;font-weight:800;letter-spacing:.5px}
+  /* tlačítka widgetu — <button> potřebuje zdědit typografii od .btn */
+  button.btn{font-family:inherit;font-size:1rem;font-weight:700;border:none;cursor:pointer;line-height:1.6}
+  button.btn.big{font-size:1.05rem}
+  button.btn[disabled]{opacity:.6;cursor:default}
+  .catchly-live-dot{display:inline-block;width:.5em;height:.5em;margin-right:.55em;border-radius:50%;background:currentColor;animation:catchly-blink 1.4s ease-in-out infinite;vertical-align:baseline}
+  @keyframes catchly-blink{50%{opacity:.25}}
+  [data-catchly-status]{min-height:1.4em;transition:opacity .2s ease}
+  [data-catchly-status]:empty{opacity:0}
+  @media(prefers-reduced-motion:reduce){.catchly-live-dot{animation:none}}
   .copy-btn{margin-left:6px;font-size:.8rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 10px;cursor:pointer;color:var(--ink);font-family:inherit}
   .copy-btn:hover{border-color:var(--accent);color:var(--accent-dark)}
   /* hero */
@@ -139,7 +145,7 @@
       <a href="chat.html">💬 Chat</a>
     </nav>
 
-    <a class="btn" data-phone-link href="#">Zavolejte si s ní</a>
+    <button class="btn" type="button" data-catchly-call>Zkusit hovor</button>
   </div>
 </header>
 
@@ -148,15 +154,13 @@
 <div class="wrap hero" id="telefon">
   <div>
     <h1>Zvedneme telefon, <em>když vaše recepce nemůže.</em></h1>
-    <p class="sub">Hlasová asistentka odpoví česky, řekne ceny a ordinační dobu a kontakt na zájemce vám pošle na e-mail. Vaše telefonní číslo zůstává stejné.</p>
+    <p class="sub">Hlasová asistentka odpoví česky, řekne ceny a otevírací dobu a kontakt na zájemce vám pošle na e-mail. Vaše telefonní číslo zůstává stejné.</p>
     <div class="cta-row">
-      <a class="btn big phone" data-phone-link href="#">
-        <span class="lbl">Zavolejte si s ní:</span>
-        <span class="num" data-phone-text>+420 XXX XXX XXX</span>
-      </a>
+      <button class="btn big" type="button" data-catchly-call>Zkusit hovor v prohlížeči</button>
       <a class="btn ghost" href="mailto:daniel@catchlyai.com?subject=Chci ukázku na svém webu&body=Dobrý den, máme zájem o ukázku asistenta. Web naší kliniky: ">Chci ukázku na svém webu — zdarma</a>
     </div>
-    <p class="note">Zavolejte kdykoli, je to nezávazná ukázka. Nebo mi pošlete adresu svého webu a do 48 hodin vám vrátím asistentku postavenou pro vaši kliniku.<br>
+    <p class="note" data-catchly-status></p>
+    <p class="note">Mluvte s ní přímo odsud, stačí povolit mikrofon. Trvá to minutu a nikam se nezapisujete. Nebo mi pošlete adresu svého webu a do 48 hodin vám vrátím asistentku postavenou pro vaši kliniku.<br>
     Napsat můžete na <a href="mailto:daniel@catchlyai.com" class="mail-link">daniel@catchlyai.com</a> <button type="button" class="copy-btn" onclick="copyMail(this)">Zkopírovat adresu</button></p>
   </div>
 
@@ -167,7 +171,7 @@
       <span class="ico" aria-hidden="true"></span>
       <div class="body">
         <span class="label">Příchozí hovor · 18:42</span>
-        <span class="meta">Ordinace nezvedá…</span>
+        <span class="meta">Klinika nezvedá…</span>
       </div>
     </div>
 
@@ -175,8 +179,8 @@
       <span class="ico" aria-hidden="true"></span>
       <div class="body">
         <span class="label">Asistentka Catchly zvedá</span>
-        <div class="msg bot">„Dobrý den, ordinace už má zavřeno, ale ráda vám pomůžu. Co potřebujete?“</div>
-        <div class="msg user">„Chtěl bych se objednat na kontrolu.“</div>
+        <div class="msg bot">„Dobrý den, klinika už má zavřeno, ale ráda vám pomůžu. Co potřebujete?“</div>
+        <div class="msg user">„Chtěla bych se objednat na konzultaci.“</div>
         <div class="msg bot">„Jistě. Řeknete mi prosím jméno a telefon? Klinika se vám ozve hned zítra ráno.“</div>
       </div>
     </div>
@@ -185,7 +189,7 @@
       <span class="ico" aria-hidden="true"></span>
       <div class="body">
         <span class="label">Kontakt odeslán na e-mail kliniky</span>
-        <div class="lead-out">Jan Novák · 604 XXX XXX · kontrola</div>
+        <div class="lead-out">Jana Nováková · 604 XXX XXX · konzultace</div>
       </div>
     </div>
   </div>
@@ -194,10 +198,10 @@
 <section class="alt" id="proc">
   <div class="wrap">
     <h2>Kolik pacientů vám tenhle měsíc uteklo, protože se nedovolali?</h2>
-    <p class="lead">Recepce nemůže být u telefonu pořád. Zvedá hovor, když zrovna přijímá pacienta v čekárně, když asistuje u křesla, o pauze, po zavíračce. Kdo se nedovolá, nezkouší to znovu — vytočí další ordinaci v pořadí.</p>
+    <p class="lead">Recepce nemůže být u telefonu pořád. Zvedá hovor, když zrovna přijímá pacienta v čekárně, když je u zákroku, o pauze, po zavíračce. Kdo se nedovolá, nezkouší to znovu — vytočí další kliniku v pořadí.</p>
     <div class="grid3">
-      <div class="card"><div class="num">1</div><h3>Když recepce ošetřuje</h3><p>Asistentka převezme hovor, který by jinak propadl. Odpoví na ceny, ordinační dobu, pojišťovny i parkování.</p></div>
-      <div class="card"><div class="num">2</div><h3>Po ordinačních hodinách</h3><p>Lidi řeší zuby večer, když je bolí. V 21:00 nikdo nezvedá — asistentka ano, a kontakt máte ráno v e-mailu.</p></div>
+      <div class="card"><div class="num">1</div><h3>Když recepce ošetřuje</h3><p>Asistentka převezme hovor, který by jinak propadl. Odpoví na ceny, otevírací dobu, průběh zákroku i parkování.</p></div>
+      <div class="card"><div class="num">2</div><h3>Po otevírací době</h3><p>Lidi hledají kliniku večer, když mají konečně čas. V 21:00 nikdo nezvedá — asistentka ano, a kontakt máte ráno v e-mailu.</p></div>
       <div class="card"><div class="num">3</div><h3>O víkendech a svátcích</h3><p>Poptávka nekončí v pátek odpoledne. Asistentka zachytí i sobotní hovory a vy je v pondělí jen zavoláte zpátky.</p></div>
     </div>
   </div>
@@ -213,7 +217,7 @@
       <li><h3>Nikdo nezvedá do 20 vteřin?</h3><p>Přebírá asistentka</p></li>
       <li><h3>Kontakt v e-mailu</h3><p>Jméno, telefon a co pacient potřeboval</p></li>
     </ol>
-    <p class="highlight">Neměníte vizitky, ceduli na ordinaci, Google ani web. Nekupujete žádný hardware a nikdo u vás nic neinstaluje. Nastaví se jen podmíněné přesměrování u vašeho operátora — a to zařídím za vás.</p>
+    <p class="highlight">Neměníte vizitky, ceduli na klinice, Google ani web. Nekupujete žádný hardware a nikdo u vás nic neinstaluje. Nastaví se jen podmíněné přesměrování u vašeho operátora — a to zařídím za vás.</p>
   </div>
 </section>
 
@@ -222,7 +226,7 @@
     <h2>Jak to funguje</h2>
     <p class="lead">Žádné IT projekty, žádná práce pro váš tým. Vy jen zkontrolujete odpovědi.</p>
     <div class="grid4">
-      <div class="card"><div class="num">1</div><h3>Postavím ji z vašeho webu</h3><p>Asistentka se naučí vaše výkony, ceník i ordinační dobu přímo z vašich stránek. Spuštění do 48 hodin od odsouhlasení.</p></div>
+      <div class="card"><div class="num">1</div><h3>Postavím ji z vašeho webu</h3><p>Asistentka se naučí vaše výkony, ceník i otevírací dobu přímo z vašich stránek. Spuštění do 48 hodin od odsouhlasení.</p></div>
       <div class="card"><div class="num">2</div><h3>Nastavím přesměrování</h3><p>Domluvím s vaším operátorem přesměrování nezvednutých hovorů. Vy nemusíte dělat nic a vaše číslo se nemění.</p></div>
       <div class="card"><div class="num">3</div><h3>Zvedá a zachytává</h3><p>Odpovídá česky, u zájmu o termín si vezme jméno a telefon a kontakt vám okamžitě pošle na e-mail.</p></div>
       <div class="card"><div class="num">4</div><h3>Ladím a reportuji</h3><p>Poslouchám hovory, dolaďuji odpovědi a měsíčně posílám přehled: kolik hovorů asistentka zvedla a kolik pacientů zachytila.</p></div>
@@ -256,16 +260,14 @@
 <section style="text-align:center">
   <div class="wrap">
     <h2>Poslechněte si ji, než se rozhodnete</h2>
-    <p class="lead" style="margin:0 auto 28px">Zavolejte na <a data-phone-link href="#" class="mail-link"><span data-phone-text>+420 XXX XXX XXX</span></a> a promluvte si s asistentkou přesně tak, jak by to udělal váš pacient. Trvá to minutu a nikam se nezapisujete.<br><br>
+    <p class="lead" style="margin:0 auto 28px">Klikněte níž a promluvte si s ní přesně tak, jak by to udělal váš pacient. Je to ukázková estetická klinika — pro vás ji nastavím na vaše skutečné služby a ceny.<br><br>
     Když vás to zaujme, pošlete mi adresu svého webu — do 48 hodin vám vrátím asistentku postavenou přímo pro vaši kliniku. Nezávazně.</p>
     <div class="cta-row" style="justify-content:center;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
-      <a class="btn big phone" data-phone-link href="#">
-        <span class="lbl">Zavolejte si s ní:</span>
-        <span class="num" data-phone-text>+420 XXX XXX XXX</span>
-      </a>
+      <button class="btn big" type="button" data-catchly-call>Zkusit hovor v prohlížeči</button>
       <a class="btn ghost" href="mailto:daniel@catchlyai.com?subject=Chci ukázku na svém webu&body=Dobrý den, máme zájem o ukázku. Web naší kliniky: ">Poslat web a získat ukázku</a>
     </div>
-    <p class="note" style="margin-top:14px;font-size:.85rem;color:var(--muted)">Nebo napište na <a href="mailto:daniel@catchlyai.com" class="mail-link">daniel@catchlyai.com</a> <button type="button" class="copy-btn" onclick="copyMail(this)">Zkopírovat adresu</button></p>
+    <p class="note" data-catchly-status style="margin-top:14px;font-size:.85rem;color:var(--muted)"></p>
+    <p class="note" style="margin-top:6px;font-size:.85rem;color:var(--muted)">Nebo napište na <a href="mailto:daniel@catchlyai.com" class="mail-link">daniel@catchlyai.com</a> <button type="button" class="copy-btn" onclick="copyMail(this)">Zkopírovat adresu</button></p>
   </div>
 </section>
 
@@ -274,25 +276,11 @@
 <footer>
   <div class="wrap foot">
     <span>© 2026 Catchly · Daniel Becher</span>
-    <span><a data-phone-link href="#"><span data-phone-text>+420 XXX XXX XXX</span></a> · <a href="mailto:daniel@catchlyai.com">daniel@catchlyai.com</a> · <a href="https://instagram.com/catchlyai" target="_blank" rel="noopener">Instagram</a></span>
+    <span><a href="mailto:daniel@catchlyai.com">daniel@catchlyai.com</a> · <a href="https://instagram.com/catchlyai" target="_blank" rel="noopener">Instagram</a></span>
   </div>
 </footer>
 
 <script>
-/* Demo číslo na jednom místě. Změňte tyto dva řádky a propíše se všude.
-   DEMO_PHONE          = jak se číslo zobrazuje (s mezerami)
-   DEMO_PHONE_DIAL     = jak se vytáčí (bez mezer, pro tel: odkaz) */
-const DEMO_PHONE = "+420 XXX XXX XXX";
-const DEMO_PHONE_DIAL = "+420XXXXXXXXX";
-
-document.querySelectorAll('[data-phone-link]').forEach(function(a){
-  a.setAttribute('href','tel:'+DEMO_PHONE_DIAL);
-  a.setAttribute('aria-label','Zavolat asistentce na číslo '+DEMO_PHONE);
-});
-document.querySelectorAll('[data-phone-text]').forEach(function(el){
-  el.textContent = DEMO_PHONE;
-});
-
 function copyMail(btn){
   var addr='daniel@catchlyai.com';
   function done(){var t=btn.textContent;btn.textContent='Zkopírováno';setTimeout(function(){btn.textContent=t;},2000);}
@@ -304,6 +292,119 @@ function copyMail(btn){
     document.body.removeChild(ta);
   }
 }
+</script>
+
+<!-- ====================================================================
+     CATCHLY — hlasový widget (Vapi)
+     Doplň PUBLIC_KEY a ASSISTANT_ID níž. Nic jiného měnit nemusíš.
+     Spouštěčem je jakýkoliv prvek s atributem data-catchly-call,
+     stavová hláška se vypisuje do prvků s data-catchly-status.
+     ==================================================================== -->
+<script type="module">
+  // Kdyby se knihovna nenačetla, alternativa:
+  //   import Vapi from "https://cdn.jsdelivr.net/npm/@vapi-ai/web@2/+esm";
+  import Vapi from "https://esm.sh/@vapi-ai/web@2";
+
+  // =====================================================================
+  //  VYPLŇ — obojí najdeš ve Vapi dashboardu
+  // =====================================================================
+  const PUBLIC_KEY   = "d827fc1d-d429-4a5a-a9f7-ce4e281f668d";  // Vapi API Keys → Public Key
+  const ASSISTANT_ID = "3360b6e9-93de-4dc2-a5a7-523cc3ae4601";  // asistent „Estetica – demo"
+  // =====================================================================
+
+  const STATUS = {
+    connecting: "Spojuji, prohlížeč si vyžádá mikrofon…",
+    live:       "Hovor probíhá — mluvte normálně, klidně jí i skočte do řeči.",
+    speaking:   "Asistentka mluví…",
+    listening:  "Poslouchám…",
+    ended:      "Hovor ukončen. Díky za vyzkoušení.",
+    errMic:     "Prohlížeč nepustil mikrofon. Povolte ho v adresním řádku a zkuste to znovu.",
+    errNoMic:   "Nenašli jsme mikrofon. Zkontrolujte, že je připojený.",
+    errBusy:    "Zrovna je vytíženo. Zkuste to prosím za chvíli.",
+    errGeneric: "Něco se pokazilo. Zkuste to prosím znovu.",
+    errConfig:  "Ukázka není momentálně dostupná. Napište mi na daniel@catchlyai.com.",
+  };
+
+  const buttons   = Array.from(document.querySelectorAll("[data-catchly-call]"));
+  const statusEls = Array.from(document.querySelectorAll("[data-catchly-status]"));
+  const original  = new WeakMap();
+  buttons.forEach((b) => original.set(b, b.innerHTML));
+
+  let vapi = null, isActive = false, isBusy = false;
+
+  const setStatus = (t) => statusEls.forEach((el) => { el.textContent = t; });
+
+  function render(state) {
+    buttons.forEach((btn) => {
+      btn.disabled = isBusy;
+      btn.setAttribute("aria-busy", isBusy ? "true" : "false");
+      if (state === "active")          btn.innerHTML = '<span class="catchly-live-dot"></span>Ukončit hovor';
+      else if (state === "connecting") btn.textContent = "Spojuji…";
+      else if (state === "ending")     btn.textContent = "Ukončuji…";
+      else                             btn.innerHTML = original.get(btn);
+    });
+  }
+
+  function fail(msg) { isActive = false; isBusy = false; setStatus(msg); render("idle"); }
+
+  if (PUBLIC_KEY.startsWith("VLOZ_SEM") || ASSISTANT_ID.startsWith("VLOZ_SEM")) {
+    console.error("[catchly] Chybí PUBLIC_KEY nebo ASSISTANT_ID.");
+    buttons.forEach((b) => { b.disabled = true; });
+    setStatus(STATUS.errConfig);
+  } else {
+    try { vapi = new Vapi(PUBLIC_KEY); }
+    catch (err) {
+      console.error("[catchly] Inicializace selhala:", err);
+      buttons.forEach((b) => { b.disabled = true; });
+      setStatus(STATUS.errConfig);
+    }
+  }
+
+  if (vapi) {
+    vapi.on("call-start",   () => { isActive = true;  isBusy = false; setStatus(STATUS.live);  render("active"); });
+    vapi.on("call-end",     () => { isActive = false; isBusy = false; setStatus(STATUS.ended); render("idle"); });
+    vapi.on("speech-start", () => { if (isActive) setStatus(STATUS.speaking); });
+    vapi.on("speech-end",   () => { if (isActive) setStatus(STATUS.listening); });
+
+    vapi.on("error", (err) => {
+      console.error("[catchly] Chyba:", err);
+      const raw = String(err?.errorMsg || err?.message || err || "");
+      if (/permission|denied|NotAllowed/i.test(raw))              return fail(STATUS.errMic);
+      if (/NotFound|no.*(device|microphone)/i.test(raw))          return fail(STATUS.errNoMic);
+      if (/concurren|limit|exceed|quota|insufficient/i.test(raw)) return fail(STATUS.errBusy);
+      if (/eject|ejection|meeting.*ended/i.test(raw))             return fail(STATUS.ended);
+      fail(STATUS.errGeneric);
+    });
+
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        if (isBusy) return;
+
+        if (isActive) {
+          isBusy = true; render("ending");
+          try { await vapi.stop(); }
+          catch (err) { console.error(err); isActive = false; isBusy = false; render("idle"); }
+          return;
+        }
+
+        isBusy = true;
+        setStatus(STATUS.connecting);
+        render("connecting");
+        try {
+          await vapi.start(ASSISTANT_ID);
+        } catch (err) {
+          console.error("[catchly] Start selhal:", err);
+          if (/permission|denied|NotAllowed/i.test(String(err?.message || err))) return fail(STATUS.errMic);
+          fail(STATUS.errGeneric);
+        }
+      });
+    });
+
+    window.addEventListener("pagehide", () => {
+      if (isActive) { try { vapi.stop(); } catch (_) {} }
+    });
+  }
 </script>
 </body>
 </html>

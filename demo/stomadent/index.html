@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klára — hlasová asistentka pro Stomadent Clinic | Catchly</title>
+<meta name="description" content="Ukázka hlasové AI asistentky Kláry připravená pro zubní kliniku Stomadent Clinic Kladno.">
+<meta name="robots" content="noindex">
+<style>
+  :root{
+    --ink:#111827;
+    --muted:#6b7280;
+    --accent:#2338c9;
+    --accent-dark:#1e2a78;
+    --bg:#f8fafc;
+    --card:#ffffff;
+    --border:#e5e7eb;
+    --live:#dc2626;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .wrap{max-width:960px;margin:0 auto;padding:24px 20px 64px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:8px 0 32px}
+  .logo{font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--ink);text-decoration:none}
+  .logo span{color:#14b8a6}
+  .phone{font-size:15px;color:var(--muted);text-decoration:none}
+  .phone strong{color:var(--ink)}
+  .badge{display:inline-block;background:var(--accent-dark);color:#fff;font-size:13px;font-weight:600;border-radius:999px;padding:5px 14px;margin-bottom:14px}
+  h1{font-size:clamp(26px,4vw,38px);letter-spacing:-0.03em;line-height:1.2;margin-bottom:12px}
+  h1 em{color:var(--accent);font-style:normal}
+  .sub{font-size:17px;color:var(--muted);max-width:680px;margin-bottom:8px}
+  .hint{font-size:15px;color:var(--muted);margin:24px 0 12px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+  .chip{font-size:14px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:6px 14px;color:var(--ink)}
+
+  /* --- volací karta --- */
+  .call-card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 30px rgba(17,24,39,.06);overflow:hidden}
+  .call-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);background:#fbfcfd}
+  .dot{width:10px;height:10px;border-radius:50%;background:#e5e7eb}
+  .dot:first-child{background:#fca5a5}.dot:nth-child(2){background:#fcd34d}.dot:nth-child(3){background:#86efac}
+  .call-label{margin-left:8px;font-size:13px;color:var(--muted)}
+  .call-body{padding:40px 24px;text-align:center}
+
+  .call-btn{font-family:inherit;font-size:17px;font-weight:600;color:#fff;background:var(--accent);border:none;border-radius:12px;padding:18px 40px;cursor:pointer;transition:background .15s,transform .1s}
+  .call-btn:hover:not(:disabled){background:var(--accent-dark)}
+  .call-btn:active:not(:disabled){transform:scale(.985)}
+  .call-btn:disabled{opacity:.55;cursor:default}
+  .call-btn.active{background:var(--live)}
+  .call-btn:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+  .live-dot{display:inline-block;width:.5em;height:.5em;margin-right:.55em;border-radius:50%;background:currentColor;animation:blink 1.4s ease-in-out infinite;vertical-align:baseline}
+  @keyframes blink{50%{opacity:.25}}
+
+  .status{margin-top:16px;min-height:1.5em;font-size:14px;color:var(--muted)}
+  .mic-note{margin-top:8px;font-size:13px;color:var(--muted)}
+
+  .note{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}
+  .cta{margin-top:48px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center}
+  .cta h2{font-size:24px;letter-spacing:-0.02em;margin-bottom:8px}
+  .cta p{color:var(--muted);max-width:560px;margin:0 auto 20px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;font-size:16px;padding:14px 28px;border-radius:10px;transition:background .15s}
+  .btn:hover{background:var(--accent-dark)}
+  .cta .alt{display:block;margin-top:14px;font-size:14px;color:var(--muted)}
+  .cta .alt a{color:var(--accent);text-decoration:none;font-weight:600}
+  .copy-btn{margin-left:6px;font-size:13px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;color:var(--ink);font-family:inherit}
+  .copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+  footer{margin-top:48px;text-align:center;font-size:14px;color:var(--muted)}
+  footer a{color:var(--muted)}
+  @media (max-width:600px){.cta{padding:24px 16px}.call-body{padding:32px 16px}.call-btn{width:100%}}
+  @media (prefers-reduced-motion:reduce){.live-dot{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="logo" href="https://catchlyai.com">Catchly<span>.</span></a>
+    <a class="phone" href="tel:+420735707776">📞 <strong>735 707 776</strong></a>
+  </header>
+
+  <span class="badge">Připraveno pro Stomadent Clinic</span>
+  <h1>Klára — hlasová asistentka <em>pro vaši kliniku</em></h1>
+  <p class="sub">Naučená přímo z webu stomadent-clinic.cz — zná vaše výkony, ceník, ordinační dobu i to, že přijímáte nové pacienty. Zvedne telefon, když se k vám pacient nemůže dovolat, a jeho kontakt vám předá i s poznámkou, jestli šlo o akutní bolest.</p>
+
+  <p class="hint">Zavolejte jí a mluvte jako váš pacient. Zkuste třeba:</p>
+  <div class="chips">
+    <span class="chip">🦷 Bolí mě zub, dá se dneska přijít?</span>
+    <span class="chip">💰 Kolik stojí dentální hygiena?</span>
+    <span class="chip">🙋 Berete nové pacienty?</span>
+    <span class="chip">🏥 Máte smlouvu s VZP?</span>
+    <span class="chip">🅿️ Kde u vás zaparkuju?</span>
+  </div>
+
+  <div class="call-card">
+    <div class="call-bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="call-label">Klára — asistentka Stomadent Clinic (ukázková verze)</span>
+    </div>
+    <div class="call-body">
+      <button id="callBtn" class="call-btn" type="button" disabled>Načítám…</button>
+      <p class="status" id="status"></p>
+      <p class="mic-note">Hovor běží přímo v prohlížeči — stačí povolit mikrofon. Nikam se nevolá a nic se neúčtuje.</p>
+    </div>
+  </div>
+
+  <p class="note">Vše je ukázka a dá se přizpůsobit — jméno, hlas, tón odpovědí i to, co smí a nesmí říkat. Ceny jsem převzal z vašeho ceníku na webu; před spuštěním je společně projdeme a potvrdíme.</p>
+
+  <div class="cta">
+    <h2>Líbí se vám, jak Klára mluví?</h2>
+    <p>Na ostro poběží na vaší lince — pacient volá na vaše číslo, u vás to zvoní jako dosud, a když nikdo nezvedne do dvaceti vteřin, převezme hovor Klára. Vaše číslo se nemění a nikdo u vás nic neinstaluje.</p>
+    <a class="btn" href="tel:+420735707776">Zavolejte mi: 735 707 776</a>
+    <span class="alt">Nebo napište na <a href="mailto:daniel@catchlyai.com">daniel@catchlyai.com</a> <button type="button" class="copy-btn" onclick="copyMail(this)">📋 Zkopírovat adresu</button></span>
+  </div>
+
+  <footer>
+    <a href="https://catchlyai.com">catchlyai.com</a> — AI asistenti pro kliniky · Daniel Becher
+  </footer>
+
+</div>
+
+<script>
+function copyMail(btn){
+  var addr='daniel@catchlyai.com';
+  function done(){var t=btn.textContent;btn.textContent='✅ Zkopírováno';setTimeout(function(){btn.textContent=t;},2000);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(addr).then(done);
+  }else{
+    var ta=document.createElement('textarea');ta.value=addr;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');done();}catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+</script>
+
+<script type="module">
+  // Kdyby se knihovna nenačetla:
+  //   import Vapi from "https://cdn.jsdelivr.net/npm/@vapi-ai/web@2/+esm";
+  import Vapi from "https://esm.sh/@vapi-ai/web@2";
+
+  const PUBLIC_KEY     = "d827fc1d-d429-4a5a-a9f7-ce4e281f668d";
+  const ASSISTANT_ID = "d2660128-54a7-4ccd-8c70-0cb3ff49c638";  // Stomadent Kladno – zubní klinika
+
+  const btn      = document.getElementById("callBtn");
+  const statusEl = document.getElementById("status");
+
+  let vapi = null, isActive = false, isBusy = false;
+  const setStatus = (t) => { statusEl.textContent = t; };
+
+  function render() {
+    btn.disabled = isBusy;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-busy", isBusy ? "true" : "false");
+    if (isBusy)        btn.textContent = isActive ? "Ukončuji…" : "Spojuji…";
+    else if (isActive) btn.innerHTML = '<span class="live-dot"></span>Ukončit hovor';
+    else               btn.textContent = "Zavolat Kláře";
+  }
+
+  function fail(msg) { isActive = false; isBusy = false; setStatus(msg); render(); }
+
+  try {
+    vapi = new Vapi(PUBLIC_KEY);
+    isBusy = false;
+    setStatus("");
+    render();
+  } catch (err) {
+    console.error("[catchly] init:", err);
+    btn.textContent = "Ukázka nedostupná";
+    setStatus("Napište mi prosím na daniel@catchlyai.com.");
+  }
+
+  if (vapi) {
+    vapi.on("call-start", () => {
+      isActive = true; isBusy = false;
+      setStatus("Hovor probíhá — mluvte normálně, klidně jí i skočte do řeči.");
+      render();
+    });
+
+    vapi.on("call-end", () => {
+      isActive = false; isBusy = false;
+      setStatus("Hovor ukončen. Díky za vyzkoušení.");
+      render();
+    });
+
+    vapi.on("speech-start", () => { if (isActive) setStatus("Klára mluví…"); });
+    vapi.on("speech-end",   () => { if (isActive) setStatus("Poslouchám…"); });
+
+    vapi.on("error", (err) => {
+      console.error("[catchly] chyba:", err);
+      const raw = String(err?.errorMsg || err?.message || err || "");
+      if (/permission|denied|NotAllowed/i.test(raw))              return fail("Prohlížeč nepustil mikrofon. Povolte ho v adresním řádku a zkuste to znovu.");
+      if (/NotFound|no.*(device|microphone)/i.test(raw))          return fail("Nenašli jsme mikrofon. Zkontrolujte, že je připojený.");
+      if (/concurren|limit|exceed|quota|insufficient/i.test(raw)) return fail("Zrovna je vytíženo. Zkuste to prosím za chvíli.");
+      if (/eject|ejection|meeting.*ended/i.test(raw))             return fail("Hovor ukončen.");
+      fail("Něco se pokazilo. Zkuste to prosím znovu.");
+    });
+
+    btn.addEventListener("click", async () => {
+      if (isBusy) return;
+
+      if (isActive) {
+        isBusy = true; render();
+        try { await vapi.stop(); }
+        catch (e) { console.error(e); isActive = false; isBusy = false; render(); }
+        return;
+      }
+
+      isBusy = true;
+      setStatus("Spojuji, prohlížeč si vyžádá mikrofon…");
+      render();
+
+      try {
+        await vapi.start(ASSISTANT_ID);
+      } catch (err) {
+        console.error("[catchly] start:", err);
+        if (/permission|denied|NotAllowed/i.test(String(err?.message || err))) {
+          return fail("Prohlížeč nepustil mikrofon. Povolte ho a zkuste to znovu.");
+        }
+        fail("Nepodařilo se spojit. Zkuste to prosím znovu.");
+      }
+    });
+
+    window.addEventListener("pagehide", () => {
+      if (isActive) { try { vapi.stop(); } catch (_) {} }
+    });
+  }
+</script>
+</body>
+</html>
