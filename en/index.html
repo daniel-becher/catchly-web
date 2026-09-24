@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catchly — AI receptionist for med spas | We answer when your front desk can't</title>
+<meta name="description" content="An AI voice receptionist that answers the calls your front desk misses. It answers questions about treatments, prices and hours and sends you the caller's details. Your number stays the same.">
+<style>
+  :root{
+    --accent:#6D5BD0; --accent-dark:#4C3FA8; --navy:#1C1B22; --ink:#1C1B22;
+    --bg:#ffffff; --soft:#F4F2FB; --muted:#6B6879; --line:#E4E0F5;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+  a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+  /* header */
+  header{position:sticky;top:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:10}
+  /* tři sloupce, aby přepínač seděl přesně uprostřed nezávisle na šířce loga a tlačítka */
+  .nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 0;gap:12px}
+  .logo{justify-self:start;display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.35rem;color:var(--navy);text-decoration:none}
+  .nav>.btn{justify-self:end}
+  .logo .ai{color:var(--accent-dark)}
+  /* přepínač telefon / chat */
+  .tabs{justify-self:center;display:flex;gap:4px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:4px}
+  .tabs a{display:inline-block;min-width:104px;text-align:center;padding:8px 16px;border-radius:9px;font-weight:700;font-size:.95rem;color:var(--muted);text-decoration:none;transition:.2s;white-space:nowrap}
+  .tabs a:hover{color:var(--accent-dark)}
+  .tabs a[aria-current="page"]{background:#fff;color:var(--accent-dark);box-shadow:0 1px 3px rgba(28,27,34,.10)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 22px;border-radius:10px;font-weight:700;text-decoration:none;transition:.2s}
+  .btn:hover{background:var(--accent-dark)}
+  .btn.big{padding:16px 30px;font-size:1.05rem}
+  .btn.ghost{background:transparent;color:var(--navy);border:2px solid var(--line)}
+  .btn.ghost:hover{background:var(--soft);border-color:var(--accent);color:var(--accent-dark)}
+  /* tlačítka widgetu — <button> potřebuje zdědit typografii od .btn */
+  button.btn{font-family:inherit;font-size:1rem;font-weight:700;border:none;cursor:pointer;line-height:1.6}
+  button.btn.big{font-size:1.05rem}
+  button.btn[disabled]{opacity:.6;cursor:default}
+  .catchly-live-dot{display:inline-block;width:.5em;height:.5em;margin-right:.55em;border-radius:50%;background:currentColor;animation:catchly-blink 1.4s ease-in-out infinite;vertical-align:baseline}
+  @keyframes catchly-blink{50%{opacity:.25}}
+  [data-catchly-status]{min-height:1.4em;transition:opacity .2s ease}
+  [data-catchly-status]:empty{opacity:0}
+  @media(prefers-reduced-motion:reduce){.catchly-live-dot{animation:none}}
+  .copy-btn{margin-left:6px;font-size:.8rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 10px;cursor:pointer;color:var(--ink);font-family:inherit}
+  .copy-btn:hover{border-color:var(--accent);color:var(--accent-dark)}
+  /* hero */
+  .hero{padding:72px 0 56px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+  .hero h1{font-size:2.5rem;line-height:1.2;color:var(--navy);margin-bottom:18px}
+  .hero h1 em{color:var(--accent-dark);font-style:normal}
+  .hero p.sub{font-size:1.15rem;color:var(--muted);margin-bottom:28px}
+  .hero .cta-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .hero .note{font-size:.85rem;color:var(--muted);margin-top:14px}
+  /* mock karta (hovor i chat) */
+  .chat{background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 20px 50px rgba(28,27,34,.10)}
+  .chat .head{display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:14px}
+  .chat .head .dot{width:9px;height:9px;border-radius:50%;background:#22c55e}
+  .chat .head span{font-weight:700;color:var(--navy);font-size:.95rem}
+  .msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:.92rem;margin-bottom:10px}
+  .msg.bot{background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+  .msg.user{background:var(--accent);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+  .msg .time{display:block;font-size:.7rem;opacity:.75;margin-top:4px}
+  /* hovor: řádky se stavem */
+  .call-step{display:flex;gap:14px;margin-bottom:14px}
+  .call-step .ico{flex:0 0 auto;position:relative;width:10px;margin-top:9px;height:10px;border-radius:50%;background:var(--accent)}
+  .call-step .ico::after{content:"";position:absolute;left:50%;top:16px;bottom:-20px;width:2px;transform:translateX(-50%);background:var(--line)}
+  .call-step.last .ico::after{display:none}
+  .call-step .body{flex:1}
+  .call-step .label{display:block;font-weight:700;color:var(--navy);font-size:.92rem}
+  .call-step .meta{display:block;color:var(--muted);font-size:.85rem}
+  .call-step.last{margin-bottom:0}
+  .call-step .lead-out{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-top:6px;font-size:.88rem;color:var(--ink)}
+  /* sections */
+  section{padding:64px 0}
+  section.alt{background:var(--soft)}
+  h2{font-size:1.8rem;color:var(--navy);margin-bottom:12px}
+  .lead{color:var(--muted);max-width:640px;margin-bottom:40px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px}
+  .card .num{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;background:var(--accent);color:#fff;font-weight:800;margin-bottom:14px}
+  .card h3{color:var(--navy);font-size:1.08rem;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:.95rem}
+  /* flow diagram — vaše číslo zůstává stejné */
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:stretch;margin-bottom:28px;list-style:none}
+  .flow li{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 20px}
+  .flow li h3{color:var(--navy);font-size:1.05rem;margin-bottom:6px}
+  .flow li p{color:var(--muted);font-size:.93rem}
+  .flow li+li::before{content:"→";position:absolute;left:-13px;top:50%;transform:translateY(-50%);color:var(--accent);font-weight:700;font-size:1.1rem}
+  .highlight{background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:20px 22px;color:var(--ink);max-width:760px}
+  /* produkty */
+  .prod{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px}
+  .prod.main{border-color:var(--accent);box-shadow:0 16px 40px rgba(109,91,208,.12)}
+  .prod .badge{display:inline-block;background:var(--soft);color:var(--accent-dark);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.8rem;font-weight:700;margin-bottom:12px}
+  .prod h3{font-size:1.3rem;color:var(--navy);margin-bottom:6px}
+  .prod .tag{color:var(--muted);margin-bottom:16px}
+  .prod ul{list-style:none;margin-bottom:22px}
+  .prod ul li{padding-left:24px;position:relative;color:var(--ink);font-size:.95rem;margin-bottom:8px}
+  .prod ul li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:800}
+  .prod .chat{margin-top:22px;box-shadow:none}
+  /* compliance strip */
+  .strip{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;padding:26px;background:var(--navy);border-radius:16px;color:#DAD5F2;font-size:.92rem;list-style:none}
+  .strip b{color:#fff}
+  .strip li.key{width:100%;text-align:center;border-top:1px solid rgba(228,224,245,.25);padding-top:20px;margin-top:2px;font-size:1rem}
+  .strip li.key b{color:#CFC6FF}
+  /* about */
+  .about{display:flex;gap:28px;align-items:center;max-width:760px}
+  .about .avatar{flex:0 0 84px;width:84px;height:84px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.6rem}
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-size:.9rem}
+  .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+  footer a{color:var(--accent-dark);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  .mail-link{color:var(--accent-dark);font-weight:700;text-decoration:none}
+  @media(max-width:860px){
+    .nav{grid-template-columns:1fr auto;row-gap:12px}
+    .tabs{grid-row:2;grid-column:1/-1;width:100%}
+    .tabs a{flex:1;min-width:0}
+    .nav .btn{padding:10px 16px;font-size:.9rem}
+    .hero{grid-template-columns:1fr;padding-top:44px}
+    .grid3,.grid4,.grid2{grid-template-columns:1fr}
+    .flow{grid-template-columns:1fr;gap:26px}
+    .flow li+li::before{content:"↓";left:50%;top:-20px;transform:translateX(-50%)}
+    .hero h1{font-size:1.9rem}
+    .hero .cta-row .btn{width:100%;text-align:center}
+    .btn.phone{align-items:center}
+    .about{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="/en/">
+      <svg width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Catchly">
+        <path d="M50 8C25 8 6 24 6 44c0 12 7 22 17 29l-4 15c-1 4 3 7 6 5l17-10c3 .5 5 .7 8 .7 25 0 44-16 44-36S75 8 50 8z" fill="#6D5BD0"/>
+        <path d="M32 42c4 8 10 12 18 12s14-4 18-12" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+      </svg>
+      <span>catchly<span class="ai">ai</span></span>
+    </a>
+
+    <nav class="tabs" aria-label="Language">
+      <a aria-current="page" href="/en/">English</a>
+      <a href="/">Čeština</a>
+    </nav>
+
+    <button class="btn" type="button" data-catchly-call>Try a call</button>
+  </div>
+</header>
+
+<main>
+
+<div class="wrap hero" id="phone">
+  <div>
+    <h1>We answer the phone <em>when your front desk can't.</em></h1>
+    <p class="sub">An AI voice receptionist for med spas and clinics. It answers the calls you miss, tells callers about your treatments, prices and hours, and sends you their details right away. Your phone number stays the same.</p>
+    <div class="cta-row">
+      <button class="btn big" type="button" data-catchly-call>Talk to it in your browser</button>
+      <a class="btn ghost" href="mailto:daniel@catchlyai.com?subject=Free demo for my clinic&body=Hi, we'd like a free demo. Our website: ">Get a free demo for your clinic</a>
+    </div>
+    <p class="note" data-catchly-status></p>
+    <p class="note">Talk to it right here, just allow your microphone. It takes a minute and you don't need to sign up. Or send us your website and within 48 hours we'll send back a receptionist built for your clinic.<br>
+    Email us at <a href="mailto:daniel@catchlyai.com" class="mail-link">daniel@catchlyai.com</a> <button type="button" class="copy-btn" onclick="copyMail(this)">Copy address</button></p>
+  </div>
+
+  <div class="chat">
+    <div class="head"><span class="dot"></span><span>AI receptionist · live call</span></div>
+
+    <div class="call-step">
+      <span class="ico" aria-hidden="true"></span>
+      <div class="body">
+        <span class="label">Incoming call · 6:42 PM</span>
+        <span class="meta">Nobody at the front desk picks up…</span>
+      </div>
+    </div>
+
+    <div class="call-step">
+      <span class="ico" aria-hidden="true"></span>
+      <div class="body">
+        <span class="label">Catchly picks up</span>
+        <div class="msg bot">"Hi! The spa is closed for the day, but I'm happy to help. What can I do for you?"</div>
+        <div class="msg user">"I'd like to book a consultation for Botox."</div>
+        <div class="msg bot">"Of course. Can I get your name and phone number? The team will call you first thing tomorrow."</div>
+      </div>
+    </div>
+
+    <div class="call-step last">
+      <span class="ico" aria-hidden="true"></span>
+      <div class="body">
+        <span class="label">Lead sent to the clinic's inbox</span>
+        <div class="lead-out">Jane Smith · (555) XXX-XXXX · Botox consultation</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="alt" id="why">
+  <div class="wrap">
+    <h2>How many clients did you lose this month because they couldn't get through?</h2>
+    <p class="lead">Your front desk can't be on the phone all the time. They're checking someone in, helping with a treatment, on a break, or the day is over. People who can't get through rarely call back. They call the next spa on Google.</p>
+    <div class="grid3">
+      <div class="card"><div class="num">1</div><h3>When the front desk is busy</h3><p>Catchly takes the call that would otherwise go to voicemail and answers questions about prices, treatments, hours and parking.</p></div>
+      <div class="card"><div class="num">2</div><h3>After hours</h3><p>People look for a spa in the evening, when they finally have time. At 9 PM nobody picks up. Catchly does, and you have the lead in your inbox in the morning.</p></div>
+      <div class="card"><div class="num">3</div><h3>Weekends and holidays</h3><p>Demand doesn't stop on Friday afternoon. Catchly catches Saturday calls too, and on Monday you just call them back.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="number">
+  <div class="wrap">
+    <h2>Your phone number stays the same</h2>
+    <p class="lead">Nothing moves to a new number. Calls still go where they always went.</p>
+    <ol class="flow">
+      <li><h3>A client calls</h3><p>your usual number</p></li>
+      <li><h3>Your phone rings</h3><p>just like today</p></li>
+      <li><h3>No answer in 20 seconds?</h3><p>Catchly picks up</p></li>
+      <li><h3>Lead in your inbox</h3><p>Name, phone and what they need</p></li>
+    </ol>
+    <p class="highlight">No new business cards, signs, Google listing or website changes. No hardware, nothing to install. We only set up "forward when unanswered" with your phone provider, and we handle that for you.</p>
+  </div>
+</section>
+
+<section class="alt" id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="lead">No IT project and no extra work for your team. You just review the answers.</p>
+    <div class="grid4">
+      <div class="card"><div class="num">1</div><h3>We build it from your website</h3><p>Catchly learns your treatments, prices and hours straight from your site. Live within 48 hours after you approve it.</p></div>
+      <div class="card"><div class="num">2</div><h3>We set up forwarding</h3><p>We arrange forwarding of unanswered calls with your phone provider. You don't have to do anything and your number doesn't change.</p></div>
+      <div class="card"><div class="num">3</div><h3>It answers and captures</h3><p>It answers in English, takes the name and phone number of anyone who wants to book, and emails them to you instantly.</p></div>
+      <div class="card"><div class="num">4</div><h3>We tune and report</h3><p>We listen to calls, fine-tune the answers, and send you a monthly summary: how many calls Catchly answered and how many clients it caught.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <ul class="strip">
+      <li><b>No medical advice</b> — health questions go to your team</li>
+      <li><b>Month-to-month</b> — no long contracts</li>
+      <li><b>Callers know who they're talking to</b> — it says it's an automated assistant</li>
+      <li class="key"><b>There's always a human fallback</b> — if Catchly doesn't understand or the caller asks for a person, it transfers the call to a number you choose</li>
+    </ul>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap about">
+    <div class="avatar" aria-hidden="true">DD</div>
+    <div>
+      <h2 style="font-size:1.3rem">Daniel Becher &amp; Daniel Mayer</h2>
+      <p style="color:var(--muted)">We build AI receptionists for med spas and clinics, for the phone and the website. Every receptionist is tuned by hand for one specific clinic, and we test it together before anything goes live. Our first clinics get pilot pricing in exchange for feedback.</p>
+    </div>
+  </div>
+</section>
+
+<section style="text-align:center">
+  <div class="wrap">
+    <h2>Hear it before you decide</h2>
+    <p class="lead" style="margin:0 auto 28px">Click below and talk to it exactly like one of your clients would. This is a sample med spa. For you, we'll set it up with your real treatments and prices.<br><br>
+    If you like it, send us your website. Within 48 hours you'll get a receptionist built for your clinic. No commitment.</p>
+    <div class="cta-row" style="justify-content:center;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+      <button class="btn big" type="button" data-catchly-call>Talk to it in your browser</button>
+      <a class="btn ghost" href="mailto:daniel@catchlyai.com?subject=Free demo for my clinic&body=Hi, we'd like a free demo. Our website: ">Send your website, get a demo</a>
+    </div>
+    <p class="note" data-catchly-status style="margin-top:14px;font-size:.85rem;color:var(--muted)"></p>
+    <p class="note" style="margin-top:6px;font-size:.85rem;color:var(--muted)">Or email <a href="mailto:daniel@catchlyai.com" class="mail-link">daniel@catchlyai.com</a> <button type="button" class="copy-btn" onclick="copyMail(this)">Copy address</button></p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>© 2026 Catchly · Daniel Becher &amp; Daniel Mayer</span>
+    <span><a href="mailto:daniel@catchlyai.com">daniel@catchlyai.com</a> · <a href="https://instagram.com/catchlyai" target="_blank" rel="noopener">Instagram</a></span>
+  </div>
+</footer>
+
+<script>
+function copyMail(btn){
+  var addr='daniel@catchlyai.com';
+  function done(){var t=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=t;},2000);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(addr).then(done);
+  }else{
+    var ta=document.createElement('textarea');ta.value=addr;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');done();}catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+</script>
+
+<!-- Catchly voice widget (Vapi), English sample med spa. Shared with the clinic demos. -->
+<script type="module">
+  import { mountReceptionist } from "../demo/us/receptionist.js";
+
+  const CLINIC = {
+    name: "Glow Aesthetics",
+    facts: `Sample med spa in Denver, Colorado (this is a demo clinic).
+Hours: Monday to Friday 9 AM to 7 PM, Saturday 10 AM to 4 PM, closed Sunday.
+Address: 1550 Larimer St, Denver. Free parking in the garage behind the building.
+Treatments and prices:
+- Botox: $12 per unit, most foreheads take 10 to 20 units
+- Lip filler: from $650 per syringe
+- HydraFacial: $199, about 60 minutes
+- Microneedling: $350 per session, usually a series of 3
+- Chemical peel: from $150
+- Laser hair removal: from $99 per area
+- Free 15-minute consultation for any injectable
+New clients get 15% off their first treatment.`,
+  };
+
+  mountReceptionist(CLINIC);
+</script>
+</body>
+</html>
