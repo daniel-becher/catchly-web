@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Leah Nickie Advanced Aesthetics &mdash; your AI receptionist demo | Catchly</title>
+<style>
+  :root{
+    --accent:#6D5BD0; --accent-dark:#4C3FA8; --navy:#1C1B22; --ink:#1C1B22;
+    --bg:#ffffff; --soft:#F4F2FB; --muted:#6B6879; --line:#E4E0F5;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+  a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+  /* header */
+  header{position:sticky;top:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:10}
+  /* tři sloupce, aby přepínač seděl přesně uprostřed nezávisle na šířce loga a tlačítka */
+  .nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 0;gap:12px}
+  .logo{justify-self:start;display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.35rem;color:var(--navy);text-decoration:none}
+  .nav>.btn{justify-self:end}
+  .logo .ai{color:var(--accent-dark)}
+  /* přepínač telefon / chat */
+  .tabs{justify-self:center;display:flex;gap:4px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:4px}
+  .tabs a{display:inline-block;min-width:104px;text-align:center;padding:8px 16px;border-radius:9px;font-weight:700;font-size:.95rem;color:var(--muted);text-decoration:none;transition:.2s;white-space:nowrap}
+  .tabs a:hover{color:var(--accent-dark)}
+  .tabs a[aria-current="page"]{background:#fff;color:var(--accent-dark);box-shadow:0 1px 3px rgba(28,27,34,.10)}
+  .btn{display:inline-block;background:var(--accent);color:#fff;padding:12px 22px;border-radius:10px;font-weight:700;text-decoration:none;transition:.2s}
+  .btn:hover{background:var(--accent-dark)}
+  .btn.big{padding:16px 30px;font-size:1.05rem}
+  .btn.ghost{background:transparent;color:var(--navy);border:2px solid var(--line)}
+  .btn.ghost:hover{background:var(--soft);border-color:var(--accent);color:var(--accent-dark)}
+  /* tlačítka widgetu — <button> potřebuje zdědit typografii od .btn */
+  button.btn{font-family:inherit;font-size:1rem;font-weight:700;border:none;cursor:pointer;line-height:1.6}
+  button.btn.big{font-size:1.05rem}
+  button.btn[disabled]{opacity:.6;cursor:default}
+  .catchly-live-dot{display:inline-block;width:.5em;height:.5em;margin-right:.55em;border-radius:50%;background:currentColor;animation:catchly-blink 1.4s ease-in-out infinite;vertical-align:baseline}
+  @keyframes catchly-blink{50%{opacity:.25}}
+  [data-catchly-status]{min-height:1.4em;transition:opacity .2s ease}
+  [data-catchly-status]:empty{opacity:0}
+  @media(prefers-reduced-motion:reduce){.catchly-live-dot{animation:none}}
+  .copy-btn{margin-left:6px;font-size:.8rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 10px;cursor:pointer;color:var(--ink);font-family:inherit}
+  .copy-btn:hover{border-color:var(--accent);color:var(--accent-dark)}
+  /* hero */
+  .hero{padding:72px 0 56px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+  .hero h1{font-size:2.5rem;line-height:1.2;color:var(--navy);margin-bottom:18px}
+  .hero h1 em{color:var(--accent-dark);font-style:normal}
+  .hero p.sub{font-size:1.15rem;color:var(--muted);margin-bottom:28px}
+  .hero .cta-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .hero .note{font-size:.85rem;color:var(--muted);margin-top:14px}
+  /* mock karta (hovor i chat) */
+  .chat{background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 20px 50px rgba(28,27,34,.10)}
+  .chat .head{display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:14px}
+  .chat .head .dot{width:9px;height:9px;border-radius:50%;background:#22c55e}
+  .chat .head span{font-weight:700;color:var(--navy);font-size:.95rem}
+  .msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:.92rem;margin-bottom:10px}
+  .msg.bot{background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+  .msg.user{background:var(--accent);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+  .msg .time{display:block;font-size:.7rem;opacity:.75;margin-top:4px}
+  /* hovor: řádky se stavem */
+  .call-step{display:flex;gap:14px;margin-bottom:14px}
+  .call-step .ico{flex:0 0 auto;position:relative;width:10px;margin-top:9px;height:10px;border-radius:50%;background:var(--accent)}
+  .call-step .ico::after{content:"";position:absolute;left:50%;top:16px;bottom:-20px;width:2px;transform:translateX(-50%);background:var(--line)}
+  .call-step.last .ico::after{display:none}
+  .call-step .body{flex:1}
+  .call-step .label{display:block;font-weight:700;color:var(--navy);font-size:.92rem}
+  .call-step .meta{display:block;color:var(--muted);font-size:.85rem}
+  .call-step.last{margin-bottom:0}
+  .call-step .lead-out{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-top:6px;font-size:.88rem;color:var(--ink)}
+  /* sections */
+  section{padding:64px 0}
+  section.alt{background:var(--soft)}
+  h2{font-size:1.8rem;color:var(--navy);margin-bottom:12px}
+  .lead{color:var(--muted);max-width:640px;margin-bottom:40px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px}
+  .card .num{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;background:var(--accent);color:#fff;font-weight:800;margin-bottom:14px}
+  .card h3{color:var(--navy);font-size:1.08rem;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:.95rem}
+  /* flow diagram — vaše číslo zůstává stejné */
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:stretch;margin-bottom:28px;list-style:none}
+  .flow li{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 20px}
+  .flow li h3{color:var(--navy);font-size:1.05rem;margin-bottom:6px}
+  .flow li p{color:var(--muted);font-size:.93rem}
+  .flow li+li::before{content:"→";position:absolute;left:-13px;top:50%;transform:translateY(-50%);color:var(--accent);font-weight:700;font-size:1.1rem}
+  .highlight{background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:20px 22px;color:var(--ink);max-width:760px}
+  /* produkty */
+  .prod{background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px}
+  .prod.main{border-color:var(--accent);box-shadow:0 16px 40px rgba(109,91,208,.12)}
+  .prod .badge{display:inline-block;background:var(--soft);color:var(--accent-dark);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.8rem;font-weight:700;margin-bottom:12px}
+  .prod h3{font-size:1.3rem;color:var(--navy);margin-bottom:6px}
+  .prod .tag{color:var(--muted);margin-bottom:16px}
+  .prod ul{list-style:none;margin-bottom:22px}
+  .prod ul li{padding-left:24px;position:relative;color:var(--ink);font-size:.95rem;margin-bottom:8px}
+  .prod ul li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:800}
+  .prod .chat{margin-top:22px;box-shadow:none}
+  /* compliance strip */
+  .strip{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;padding:26px;background:var(--navy);border-radius:16px;color:#DAD5F2;font-size:.92rem;list-style:none}
+  .strip b{color:#fff}
+  .strip li.key{width:100%;text-align:center;border-top:1px solid rgba(228,224,245,.25);padding-top:20px;margin-top:2px;font-size:1rem}
+  .strip li.key b{color:#CFC6FF}
+  /* about */
+  .about{display:flex;gap:28px;align-items:center;max-width:760px}
+  .about .avatar{flex:0 0 84px;width:84px;height:84px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.6rem}
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-size:.9rem}
+  .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+  footer a{color:var(--accent-dark);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  .mail-link{color:var(--accent-dark);font-weight:700;text-decoration:none}
+  @media(max-width:860px){
+    .nav{grid-template-columns:1fr auto;row-gap:12px}
+    .tabs{grid-row:2;grid-column:1/-1;width:100%}
+    .tabs a{flex:1;min-width:0}
+    .nav .btn{padding:10px 16px;font-size:.9rem}
+    .hero{grid-template-columns:1fr;padding-top:44px}
+    .grid3,.grid4,.grid2{grid-template-columns:1fr}
+    .flow{grid-template-columns:1fr;gap:26px}
+    .flow li+li::before{content:"↓";left:50%;top:-20px;transform:translateX(-50%)}
+    .hero h1{font-size:1.9rem}
+    .hero .cta-row .btn{width:100%;text-align:center}
+    .btn.phone{align-items:center}
+    .about{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="/en/">
+      <svg width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Catchly">
+        <path d="M50 8C25 8 6 24 6 44c0 12 7 22 17 29l-4 15c-1 4 3 7 6 5l17-10c3 .5 5 .7 8 .7 25 0 44-16 44-36S75 8 50 8z" fill="#6D5BD0"/>
+        <path d="M32 42c4 8 10 12 18 12s14-4 18-12" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+      </svg>
+      <span>catchly<span class="ai">ai</span></span>
+    </a>
+    <span></span>
+    <button class="btn" type="button" data-catchly-call>Call it now</button>
+  </div>
+</header>
+
+<main>
+
+<div class="wrap hero">
+  <div>
+    <h1>Hi Leah Nickie Advanced Aesthetics, <em>meet your AI receptionist.</em></h1>
+    <p class="sub">We built this demo from your website. It knows your treatments, your hours, your address and your parking. Call it the way one of your clients would, and ask it anything.</p>
+    <div class="cta-row">
+      <button class="btn big" type="button" data-catchly-call>Talk to it in your browser</button>
+      <a class="btn ghost" href="mailto:daniel@catchlyai.com?subject=Leah Nickie Advanced Aesthetics demo">Reply to Daniel</a>
+    </div>
+    <p class="note" data-catchly-status></p>
+    <p class="note">Just allow your microphone. No sign-up. Try asking: "Where do I park?", "What is RF microneedling?" or "I'd like a free consultation."</p>
+  </div>
+
+  <div class="chat">
+    <div class="head"><span class="dot"></span><span>What it does for Leah Nickie Advanced Aesthetics</span></div>
+    <div class="call-step"><span class="ico" aria-hidden="true"></span><div class="body"><span class="label">Answers the calls you miss</span><span class="meta">When the front desk is with a client, after hours and on weekends</span></div></div>
+    <div class="call-step"><span class="ico" aria-hidden="true"></span><div class="body"><span class="label">Knows your menu</span><span class="meta">Treatments, prices, hours, location</span></div></div>
+    <div class="call-step last"><span class="ico" aria-hidden="true"></span><div class="body"><span class="label">Sends you every lead</span><div class="lead-out">Name · phone · what they want, straight to your inbox</div></div></div>
+  </div>
+</div>
+
+<section class="alt">
+  <div class="wrap">
+    <h2>Your number stays the same</h2>
+    <p class="lead">Your phone rings like it does today. Only calls nobody answers within 20 seconds go to the receptionist. No new number, no hardware, and we set everything up for you. If a caller wants a real person, it passes the message on right away.</p>
+    <p class="highlight">This demo is free and there's no commitment. If you like it, we'll tune it with your team and connect it to your phone line within 48 hours.<br><br>Questions? Email <a class="mail-link" href="mailto:daniel@catchlyai.com">daniel@catchlyai.com</a></p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>© 2026 Catchly · Built for Leah Nickie Advanced Aesthetics, Boulder</span>
+    <span><a href="/en/">catchlyai.com</a></span>
+  </div>
+</footer>
+
+<script type="module">
+  import { mountReceptionist } from "../receptionist.js";
+
+  mountReceptionist({
+    name: "Leah Nickie Advanced Aesthetics",
+    facts: `Leah Nickie Advanced Aesthetics is a skin care and medical aesthetics studio in Boulder, Colorado.
+Address: 3014 Bluff Street, Suite 201, Boulder, Colorado 80301. Parking is free for 2 hours; for appointments longer than 2 hours use the meters on the north side.
+Phone: 303-527-0101.
+Opening hours: Monday to Thursday 10 AM to 6 PM, Friday 9 AM to 5 PM, closed Saturday and Sunday.
+Free consultations are available.
+Treatments:
+- Facials: microneedling and bio needling, UltraVision RF microneedling, chemical peels, Aquagold glow facial, TriaWave skin rejuvenation, no-downtime treatments
+- Pelleve skin tightening, waxing and tinting, Latisse eyelash enhancer, Upneeq eye drops, men's treatments
+- Medical aesthetics: cosmetic neurotoxins, dermal fillers, neck rejuvenation, Kybella, PDO thread lift
+Aftercare instructions for each treatment are on the website. Prices are not listed here; say the team will confirm pricing.`,
+  });
+</script>
+</body>
+</html>
