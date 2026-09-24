@@ -19,7 +19,8 @@ const STATUS = {
 
 function buildAssistant(c) {
   return {
-    name: c.name + " receptionist",
+    // Vapi rejects assistant names longer than 40 characters.
+    name: (c.name + " receptionist").slice(0, 40),
     firstMessage: `Hi, thanks for calling ${c.name}! Just so you know, I'm the automated assistant. How can I help you today?`,
     transcriber: { provider: "deepgram", model: "nova-2", language: "en-US" },
     voice: { provider: "vapi", voiceId: "Paige" },
