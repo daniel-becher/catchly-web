@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Catchly — hlasová asistentka pro kliniky | Zvedneme telefon, když vy nemůžete</title>
+<title>Catchly — hlasová asistentka pro kliniky | Zvedneme telefon, když máte zavřeno</title>
 <meta name="description" content="Hlasová AI asistentka zvedne telefon, který vaše recepce nestihne. Odpoví česky na ceny a termíny, kontakt na pacienta pošle na e-mail. Vaše číslo se nemění.">
 <style>
   :root{
@@ -111,6 +111,63 @@
   footer a{color:var(--accent-dark);text-decoration:none}
   footer a:hover{text-decoration:underline}
   .mail-link{color:var(--accent-dark);font-weight:700;text-decoration:none}
+  /* nápověda a živý přepis během hovoru */
+  .live-help{margin-top:14px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.88rem;text-align:left;max-width:520px}
+  .live-help[hidden]{display:none}
+  .live-help .tips-h{font-weight:700;color:var(--navy);margin-bottom:6px}
+  .live-help .tips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .live-help .tips span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--accent-dark);font-weight:600}
+  .live-help .tx{max-height:170px;overflow-y:auto;display:flex;flex-direction:column;gap:5px}
+  .live-help .tx:empty{display:none}
+  .live-help .tx p{margin:0;line-height:1.4}
+  .live-help .tx b{color:var(--accent-dark)}
+  .live-help .tx p.you b{color:var(--navy)}
+  /* ukázka hovoru (demo-hovor.html) */
+
+  .cdemo{width:100%;max-width:440px;background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 20px 50px rgba(28,27,34,.10);position:relative;overflow:hidden;min-height:470px;display:flex;flex-direction:column}
+  .cdemo-head{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:12px}
+  .cdemo-dot{width:9px;height:9px;border-radius:50%;background:#22c55e;animation:cd-blink 1.4s ease-in-out infinite}
+  .cdemo-dot.off{background:#b9b5c9;animation:none}
+  .cdemo-title{font-weight:700;color:var(--navy);font-size:.92rem;flex:1}
+  .cdemo-time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.85rem}
+  .cdemo-sub{font-size:.8rem;color:var(--muted);margin:-4px 0 10px}
+
+  .cdemo-body{flex:1;display:flex;flex-direction:column;gap:8px}
+  .cd-msg{max-width:86%;padding:9px 13px;border-radius:14px;font-size:.9rem;line-height:1.45;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
+  .cd-msg.in{opacity:1;transform:none}
+  .cd-msg .who{display:block;font-size:.68rem;font-weight:700;opacity:.7;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
+  .cd-msg.bot{background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px;color:var(--navy)}
+  .cd-msg.user{background:var(--accent);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+  .cd-typing{display:inline-flex;gap:4px;padding:12px 14px}
+  .cd-typing i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.4;animation:cd-bounce 1s infinite}
+  .cd-typing i:nth-child(2){animation-delay:.15s}.cd-typing i:nth-child(3){animation-delay:.3s}
+
+  /* krok 2: výpis a mail */
+  .cd-lead{position:absolute;left:20px;right:20px;top:50%;transform:translateY(-50%) scale(.9);opacity:0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 12px 30px rgba(28,27,34,.12);transition:all .5s cubic-bezier(.2,.8,.2,1)}
+  .cd-lead.in{opacity:1;transform:translateY(-50%) scale(1)}
+  .cd-lead.fly{opacity:0;transform:translate(120px,-260px) scale(.15)}
+  .cd-lead h4{margin:0 0 10px;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-dark)}
+  .cd-lead dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:.9rem}
+  .cd-lead dt{color:var(--muted)} .cd-lead dd{margin:0;color:var(--navy);font-weight:600}
+
+  .cd-mail{position:absolute;left:20px;right:20px;top:50%;transform:translateY(-40%);opacity:0;transition:all .5s cubic-bezier(.2,.8,.2,1)}
+  .cd-mail.in{opacity:1;transform:translateY(-50%)}
+  .cd-mail-icon{width:54px;height:54px;margin:0 auto 14px;border-radius:14px;background:var(--accent);display:flex;align-items:center;justify-content:center;position:relative}
+  .cd-mail-icon .badge{position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;font-size:.7rem;font-weight:800;border-radius:999px;padding:2px 7px}
+  .cd-mail-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.86rem}
+  .cd-mail-card .from{display:flex;justify-content:space-between;color:var(--muted);font-size:.78rem;margin-bottom:4px}
+  .cd-mail-card .subj{font-weight:700;color:var(--navy);margin-bottom:3px}
+  .cd-mail-card .prev{color:var(--muted)}
+  .cd-mail-note{text-align:center;font-size:.82rem;color:var(--muted);margin-top:12px}
+
+  .cdemo-foot{display:flex;gap:8px;margin-top:12px}
+  .cd-btn{font-family:inherit;font-size:.82rem;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:9px;padding:7px 12px;cursor:pointer}
+  .cd-btn:hover{border-color:var(--accent);color:var(--accent-dark)}
+  .cd-btn[hidden]{display:none}
+
+  @keyframes cd-blink{50%{opacity:.25}}
+  @keyframes cd-bounce{0%,60%,100%{transform:none}30%{transform:translateY(-4px)}}
+  @media(prefers-reduced-motion:reduce){.cd-msg,.cd-lead,.cd-mail{transition:none}.cdemo-dot,.cd-typing i{animation:none}}
   @media(max-width:860px){
     .nav{grid-template-columns:1fr auto;row-gap:12px}
     .tabs{grid-row:2;grid-column:1/-1;width:100%}
@@ -153,44 +210,54 @@
 
 <div class="wrap hero" id="telefon">
   <div>
-    <h1>Zvedneme telefon, <em>když vaše recepce nemůže.</em></h1>
+    <h1>Zvedneme telefon, <em>když máte zavřeno.</em></h1>
     <p class="sub">Hlasová asistentka odpoví česky, řekne ceny a otevírací dobu a kontakt na zájemce vám pošle na e-mail. Vaše telefonní číslo zůstává stejné.</p>
     <div class="cta-row">
       <button class="btn big" type="button" data-catchly-call>Zkusit hovor v prohlížeči</button>
       <a class="btn ghost" href="mailto:daniel@catchlyai.com?subject=Chci ukázku na svém webu&body=Dobrý den, máme zájem o ukázku asistenta. Web naší kliniky: ">Chci ukázku na svém webu — zdarma</a>
     </div>
     <p class="note" data-catchly-status></p>
+    <div class="live-help" data-catchly-help hidden>
+      <div class="tips-h">Zkuste se jí zeptat třeba:</div>
+      <div class="tips"><span>„Kolik stojí botox?“</span><span>„Chci se objednat na konzultaci.“</span><span>„Máte otevřeno v sobotu?“</span></div>
+      <div class="tx" data-catchly-transcript aria-live="polite"></div>
+    </div>
     <p class="note">Mluvte s ní přímo odsud, stačí povolit mikrofon. Trvá to minutu a nikam se nezapisujete. Nebo mi pošlete adresu svého webu a do 48 hodin vám vrátím asistentku postavenou pro vaši kliniku.<br>
     Napsat můžete na <a href="mailto:daniel@catchlyai.com" class="mail-link">daniel@catchlyai.com</a> <button type="button" class="copy-btn" onclick="copyMail(this)">Zkopírovat adresu</button></p>
   </div>
 
-  <div class="chat">
-    <div class="head"><span class="dot"></span><span>Hlasová asistentka · průběh hovoru</span></div>
-
-    <div class="call-step">
-      <span class="ico" aria-hidden="true"></span>
-      <div class="body">
-        <span class="label">Příchozí hovor · 18:42</span>
-        <span class="meta">Klinika nezvedá…</span>
-      </div>
+  <div class="cdemo" id="cdemo" aria-live="polite">
+    <div class="cdemo-head">
+      <span class="cdemo-dot" id="cdDot"></span>
+      <span class="cdemo-title" id="cdTitle">Příchozí hovor · 19:42</span>
+      <span class="cdemo-time" id="cdTime">00:00</span>
     </div>
-
-    <div class="call-step">
-      <span class="ico" aria-hidden="true"></span>
-      <div class="body">
-        <span class="label">Asistentka Catchly zvedá</span>
-        <div class="msg bot">„Dobrý den, klinika už má zavřeno, ale ráda vám pomůžu. Co potřebujete?“</div>
-        <div class="msg user">„Chtěla bych se objednat na konzultaci.“</div>
-        <div class="msg bot">„Jistě. Řeknete mi prosím jméno a telefon? Klinika se vám ozve hned zítra ráno.“</div>
-      </div>
+    <div class="cdemo-sub" id="cdSub">Klinika má zavřeno — hovor přebírá asistentka</div>
+    <div class="cdemo-body" id="cdBody"></div>
+  
+    <div class="cd-lead" id="cdLead">
+      <h4>Výpis z hovoru</h4>
+      <dl>
+        <dt>Jméno</dt><dd>Jana Nováková</dd>
+        <dt>Telefon</dt><dd>604 123 456</dd>
+        <dt>Zájem</dt><dd>Konzultace — botox na čelo</dd>
+        <dt>Volala</dt><dd>dnes 19:42 (mimo ordinační dobu)</dd>
+      </dl>
     </div>
-
-    <div class="call-step last">
-      <span class="ico" aria-hidden="true"></span>
-      <div class="body">
-        <span class="label">Kontakt odeslán na e-mail kliniky</span>
-        <div class="lead-out">Jana Nováková · 604 XXX XXX · konzultace</div>
+  
+    <div class="cd-mail" id="cdMail">
+      <div class="cd-mail-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg><span class="badge">1</span></div>
+      <div class="cd-mail-card">
+        <div class="from"><span>Catchly · asistentka</span><span>19:43</span></div>
+        <div class="subj">Nový kontakt z hovoru — Jana Nováková</div>
+        <div class="prev">Zájem o konzultaci (botox na čelo). Zavolejte jí zpět na 604 123 456.</div>
       </div>
+      <p class="cd-mail-note">Tohle ráno najdete ve schránce.</p>
+    </div>
+  
+    <div class="cdemo-foot">
+      <button class="cd-btn" id="cdSound" type="button" hidden>🔊 Zapnout zvuk</button>
+      <button class="cd-btn" id="cdReplay" type="button" hidden>↻ Přehrát znovu</button>
     </div>
   </div>
 </div>
@@ -200,9 +267,9 @@
     <h2>Kolik pacientů vám tenhle měsíc uteklo, protože se nedovolali?</h2>
     <p class="lead">Recepce nemůže být u telefonu pořád. Zvedá hovor, když zrovna přijímá pacienta v čekárně, když je u zákroku, o pauze, po zavíračce. Kdo se nedovolá, nezkouší to znovu — vytočí další kliniku v pořadí.</p>
     <div class="grid3">
-      <div class="card"><div class="num">1</div><h3>Když recepce ošetřuje</h3><p>Asistentka převezme hovor, který by jinak propadl. Odpoví na ceny, otevírací dobu, průběh zákroku i parkování.</p></div>
-      <div class="card"><div class="num">2</div><h3>Po otevírací době</h3><p>Lidi hledají kliniku večer, když mají konečně čas. V 21:00 nikdo nezvedá — asistentka ano, a kontakt máte ráno v e-mailu.</p></div>
-      <div class="card"><div class="num">3</div><h3>O víkendech a svátcích</h3><p>Poptávka nekončí v pátek odpoledne. Asistentka zachytí i sobotní hovory a vy je v pondělí jen zavoláte zpátky.</p></div>
+      <div class="card"><div class="num">1</div><h3>Po otevírací době</h3><p>Lidi hledají kliniku večer, když mají konečně čas. V 21:00 nikdo nezvedá — asistentka ano, a kontakt máte ráno v e-mailu.</p></div>
+      <div class="card"><div class="num">2</div><h3>O víkendech a svátcích</h3><p>Poptávka nekončí v pátek odpoledne. Asistentka zachytí i sobotní hovory a vy je v pondělí jen zavoláte zpátky.</p></div>
+      <div class="card"><div class="num">3</div><h3>Když recepce ošetřuje</h3><p>Asistentka převezme hovor, který by jinak propadl. Odpoví na ceny, otevírací dobu, průběh zákroku i parkování.</p></div>
     </div>
   </div>
 </section>
@@ -267,6 +334,11 @@
       <a class="btn ghost" href="mailto:daniel@catchlyai.com?subject=Chci ukázku na svém webu&body=Dobrý den, máme zájem o ukázku. Web naší kliniky: ">Poslat web a získat ukázku</a>
     </div>
     <p class="note" data-catchly-status style="margin-top:14px;font-size:.85rem;color:var(--muted)"></p>
+    <div style="display:flex;justify-content:center"><div class="live-help" data-catchly-help hidden>
+        <div class="tips-h">Zkuste se jí zeptat třeba:</div>
+        <div class="tips"><span>„Kolik stojí botox?“</span><span>„Chci se objednat na konzultaci.“</span><span>„Máte otevřeno v sobotu?“</span></div>
+        <div class="tx" data-catchly-transcript aria-live="polite"></div>
+      </div></div>
     <p class="note" style="margin-top:6px;font-size:.85rem;color:var(--muted)">Nebo napište na <a href="mailto:daniel@catchlyai.com" class="mail-link">daniel@catchlyai.com</a> <button type="button" class="copy-btn" onclick="copyMail(this)">Zkopírovat adresu</button></p>
   </div>
 </section>
@@ -292,6 +364,115 @@ function copyMail(btn){
     document.body.removeChild(ta);
   }
 }
+</script>
+
+<script>
+/* ukázka hovoru v hero */
+(function(){
+  // Scénář. "audio" = cesta k mp3 výřezu repliky (např. "audio/demo/01.mp3").
+  // Dokud žádná replika audio nemá, tlačítko „Zapnout zvuk“ se neukáže a animace běží jako text.
+  const SCRIPT = [
+    {who:"user", text:"Dobrý den, chtěla jsem se zeptat, kolik stojí botox na čelo?"},
+    {who:"bot",  text:"Dobrý den, tady automatická asistentka kliniky. Klinika už má zavřeno, ale ráda vám pomůžu. Ošetření čela botulotoxinem stojí od 4 500 korun."},
+    {who:"user", text:"A jak dlouho to vydrží?"},
+    {who:"bot",  text:"Obvykle tři až šest měsíců. Chcete se objednat na konzultaci?"},
+    {who:"user", text:"Jo, to bych chtěla."},
+    {who:"bot",  text:"Výborně. Řeknete mi prosím své jméno?"},
+    {who:"user", text:"Jana Nováková."},
+    {who:"bot",  text:"Děkuju. A na jaké číslo se vám může klinika ozvat?"},
+    {who:"user", text:"604 123 456."},
+    {who:"bot",  text:"Mám to. Klinika se vám ozve zítra dopoledne. Hezký večer!"}
+  ];
+  const LABEL = {user:"Pacientka", bot:"Asistentka"};
+
+  const $ = id => document.getElementById(id);
+  const body=$("cdBody"), time=$("cdTime"), dot=$("cdDot"), title=$("cdTitle"), sub=$("cdSub"),
+        lead=$("cdLead"), mail=$("cdMail"), replay=$("cdReplay"), sound=$("cdSound");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let timers=[], clock=null, sec=0, running=false, gen=0;
+  let soundOn=false, curAudio=null, curDone=null;
+  const HAS_AUDIO = SCRIPT.some(l => l.audio);
+  if(HAS_AUDIO) sound.hidden=false;
+
+  function stopAudio(){
+    if(curAudio){ curAudio.pause(); curAudio=null; }
+    if(curDone){ const d=curDone; curDone=null; d(); }
+  }
+  function playAudio(src){
+    return new Promise(res=>{
+      const a=new Audio(src); curAudio=a; curDone=res;
+      const fin=()=>{ if(curDone===res){ curDone=null; curAudio=null; res(); } };
+      a.onended=fin; a.onerror=fin;
+      a.play().catch(fin);
+    });
+  }
+
+  const wait = ms => new Promise(r => timers.push(setTimeout(r, reduce ? Math.min(ms,300) : ms)));
+  const readMs = t => Math.max(1400, t.length * 45);   // přibližná doba čtení/mluvení
+
+  function reset(){
+    timers.forEach(clearTimeout); timers=[]; clearInterval(clock); stopAudio();
+    body.innerHTML=""; body.style.display=""; sec=0; time.textContent="00:00";
+    lead.className="cd-lead"; mail.className="cd-mail"; replay.hidden=true;
+    dot.classList.remove("off"); title.textContent="Příchozí hovor · 19:42";
+    sub.textContent="Klinika má zavřeno — hovor přebírá asistentka";
+  }
+
+  function bubble(who, html){
+    const el=document.createElement("div");
+    el.className="cd-msg "+who;
+    el.innerHTML='<span class="who">'+LABEL[who]+'</span>'+html;
+    body.appendChild(el);
+    requestAnimationFrame(()=>el.classList.add("in"));
+    // drž posledních 6 bublin, ať se karta nenafukuje
+    while(body.children.length>6) body.removeChild(body.firstChild);
+    return el;
+  }
+
+  async function play(){
+    if(running) return; running=true; reset(); const my=++gen;
+    clock=setInterval(()=>{sec++;time.textContent=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0");},1000);
+    await wait(700);
+    for(const line of SCRIPT){
+      if(my!==gen) return;
+      if(soundOn && line.audio){
+        // se zvukem: text naskočí hned a čeká se na konec nahrávky
+        bubble(line.who, line.text);
+        await playAudio(line.audio);
+        await wait(250);
+      } else {
+        const el=bubble(line.who,'<span class="cd-typing"><i></i><i></i><i></i></span>');
+        await wait(line.who==="bot"?900:600);
+        el.innerHTML='<span class="who">'+LABEL[line.who]+'</span>'+line.text;
+        await wait(line.ms || readMs(line.text));
+      }
+    }
+    if(my!==gen) return;
+    clearInterval(clock); dot.classList.add("off");
+    title.textContent="Hovor ukončen"; sub.textContent="Asistentka posílá kontakt klinice…";
+    await wait(600);
+    body.style.display="none";
+    lead.classList.add("in");            // krok 2a: výpis
+    await wait(3200);
+    lead.classList.add("fly");           // krok 2b: odlet do obálky
+    await wait(450);
+    mail.classList.add("in");            // krok 2c: mail ve schránce
+    sub.textContent="Kontakt odeslán na e-mail kliniky";
+    await wait(1200);
+    replay.hidden=false; running=false;
+  }
+
+  replay.addEventListener("click",play);
+  // Zapnout zvuk = přehrát od začátku se zvukem (prohlížeč pustí zvuk jen po kliknutí)
+  sound.addEventListener("click",()=>{
+    soundOn=!soundOn;
+    sound.textContent = soundOn ? "🔇 Vypnout zvuk" : "🔊 Zapnout zvuk";
+    if(soundOn){ running=false; play(); } else { stopAudio(); }
+  });
+  // spustí se, až je karta vidět
+  const io=new IntersectionObserver(e=>{ if(e[0].isIntersecting){ io.disconnect(); play(); } },{threshold:.4});
+  io.observe($("cdemo"));
+})();
 </script>
 
 <!-- ====================================================================
@@ -334,6 +515,32 @@ function copyMail(btn){
 
   const setStatus = (t) => statusEls.forEach((el) => { el.textContent = t; });
 
+  // nápověda a živý přepis — ukáže se u tlačítka, kterým byl hovor spuštěn
+  const helps = Array.from(document.querySelectorAll("[data-catchly-help]"));
+  let activeHelp = null;
+  function showHelp(btn) {
+    helps.forEach((h) => { h.hidden = true; });
+    const sec = btn.closest("section, .hero, header");
+    activeHelp = (sec && sec.querySelector("[data-catchly-help]")) || helps[0] || null;
+    if (!activeHelp) return;
+    activeHelp.querySelector("[data-catchly-transcript]").innerHTML = "";
+    activeHelp.querySelector(".tips").hidden = false;
+    activeHelp.querySelector(".tips-h").hidden = false;
+    activeHelp.hidden = false;
+  }
+  function addLine(role, text) {
+    if (!activeHelp || !text) return;
+    const tx = activeHelp.querySelector("[data-catchly-transcript]");
+    const p = document.createElement("p");
+    if (role === "user") p.className = "you";
+    const b = document.createElement("b");
+    b.textContent = role === "user" ? "Vy: " : "Asistentka: ";
+    p.appendChild(b); p.appendChild(document.createTextNode(text));
+    tx.appendChild(p); tx.scrollTop = tx.scrollHeight;
+    // jakmile člověk promluví, tipy už nepotřebuje
+    if (role === "user") { activeHelp.querySelector(".tips").hidden = true; activeHelp.querySelector(".tips-h").hidden = true; }
+  }
+
   function render(state) {
     buttons.forEach((btn) => {
       btn.disabled = isBusy;
@@ -365,6 +572,9 @@ function copyMail(btn){
     vapi.on("call-end",     () => { isActive = false; isBusy = false; setStatus(STATUS.ended); render("idle"); });
     vapi.on("speech-start", () => { if (isActive) setStatus(STATUS.speaking); });
     vapi.on("speech-end",   () => { if (isActive) setStatus(STATUS.listening); });
+    vapi.on("message", (m) => {
+      if (m && m.type === "transcript" && m.transcriptType === "final") addLine(m.role, m.transcript);
+    });
 
     vapi.on("error", (err) => {
       console.error("[catchly] Chyba:", err);
@@ -389,6 +599,7 @@ function copyMail(btn){
         }
 
         isBusy = true;
+        showHelp(btn);
         setStatus(STATUS.connecting);
         render("connecting");
         try {
