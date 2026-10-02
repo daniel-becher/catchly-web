@@ -205,9 +205,22 @@ function copyMail(btn){
       }
 
       isBusy = true;
-      setStatus("Spojuji, prohlížeč si vyžádá mikrofon…");
+      setStatus("Prohlížeč si vyžádá mikrofon — povolte ho prosím…");
       render();
 
+      // Hovor spustíme až ve chvíli, kdy je mikrofon opravdu povolený.
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((t) => t.stop());
+      } catch (err) {
+        console.error("[catchly] mikrofon:", err);
+        if (/NotFound|no.*device/i.test(String(err?.name || err))) {
+          return fail("Nenašli jsme mikrofon. Zkontrolujte, že je připojený, a zkuste to znovu.");
+        }
+        return fail("Bez mikrofonu to nepůjde. Povolte ho v adresním řádku (ikona zámku) a klikněte znovu.");
+      }
+
+      setStatus("Spojuji…");
       try {
         await vapi.start(ASSISTANT_ID);
       } catch (err) {
